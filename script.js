@@ -153,7 +153,6 @@ const pokemonSetsInfoOld= [
 /**
  * Función para obtener un dato curioso aleatorio de un set de cartas Pokémon antiguo.
  * Usa un array `pokemonSetsInfoOld` que debe estar definido previamente en tu entorno.
- * @returns {Object} Un objeto con el nombre del set y una curiosidad.
  */
 function obtenerDatoCuriosoOld() {
   const randomIndex = Math.floor(Math.random() * pokemonSetsInfoOld.length);
