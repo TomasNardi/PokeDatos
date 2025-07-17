@@ -1,3 +1,9 @@
+/**********************
+ * Script KetsonBot 🤖
+ * Envío automático de curiosidades Pokémon en WhatsApp Web
+ * Compatible con la versión actual del botón de envío
+ * Por Tomás Nardi
+ **********************/
 
 const pokemonSetsInfoOld= [
   {
@@ -144,121 +150,105 @@ const pokemonSetsInfoOld= [
   }
 ];
 
-// Función para obtener un dato curioso basado en un número aleatorio
+/**
+ * Función para obtener un dato curioso aleatorio de un set de cartas Pokémon antiguo.
+ * Usa un array `pokemonSetsInfoOld` que debe estar definido previamente en tu entorno.
+ * @returns {Object} Un objeto con el nombre del set y una curiosidad.
+ */
 function obtenerDatoCuriosoOld() {
   const randomIndex = Math.floor(Math.random() * pokemonSetsInfoOld.length);
   const setSeleccionado = pokemonSetsInfoOld[randomIndex];
-  
-  // Elegir una curiosidad aleatoria dentro del set seleccionado
   const randomCuriosityIndex = Math.floor(Math.random() * setSeleccionado.curiosidades.length);
   const curiosidadSeleccionada = setSeleccionado.curiosidades[randomCuriosityIndex];
-  
+
   return {
     set: setSeleccionado.set,
     curiosidad: curiosidadSeleccionada
   };
 }
 
-// Función asincrónica para enviar un script línea por línea a un cuadro de texto editable en una página web
-// ...existing code...
 
-// ...existing code...
+function obtenerDatoCuriosoOld() {
+  const randomIndex = Math.floor(Math.random() * pokemonSetsInfoOld.length);
+  const setSeleccionado = pokemonSetsInfoOld[randomIndex];
+  const randomCuriosityIndex = Math.floor(Math.random() * setSeleccionado.curiosidades.length);
+  const curiosidadSeleccionada = setSeleccionado.curiosidades[randomCuriosityIndex];
 
-// Función asincrónica para enviar un script línea por línea o como un bloque a un cuadro de texto editable en una página web
+  return {
+    set: setSeleccionado.set,
+    curiosidad: curiosidadSeleccionada
+  };
+}
+
 async function enviarScript(scriptText, tiempoDeEspera = 1200, enviarComoBloque = false) {
-  // Obtener referencias a elementos DOM relevantes
-  const main = document.querySelector('#main')
-  const textarea = main.querySelector('div[contenteditable="true"]')
+  const main = document.querySelector('#main');
+  const textarea = main?.querySelector('div[contenteditable="true"]');
 
-  // Verificar si hay un cuadro de texto editable presente
   if (!textarea) {
-      throw new Error('No hay una conversación abierta')
+    throw new Error('No hay una conversación abierta');
   }
 
   try {
-      if (enviarComoBloque) {
-          // Foco en el cuadro de texto editable
-          textarea.focus()
+    if (enviarComoBloque) {
+      textarea.focus();
+      document.execCommand('insertText', false, scriptText.trim());
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      await new Promise((resolve) => setTimeout(resolve, tiempoDeEspera));
 
-          // Insertar el texto completo del script en el cuadro de texto
-          document.execCommand('insertText', false, scriptText.trim())
+      const sendButton =
+        main.querySelector('span[data-icon="wds-ic-send-filled"]')?.closest('button') ||
+        main.querySelector('button[aria-label="Send"]');
 
-          // Despachar un evento de entrada en el cuadro de texto
-          textarea.dispatchEvent(new Event('input', { bubbles: true }))
+      if (!sendButton) throw new Error('No se encontró el botón de enviar mensaje');
 
-          // Esperar un tiempo especificado antes de continuar
-          await new Promise((resolve) => setTimeout(resolve, tiempoDeEspera))
+      sendButton.click();
+      return 1;
+    } else {
+      const lines = scriptText
+        .split(/[\n\t]+/)
+        .map((line) => line.trim())
+        .filter((line) => line);
 
-          // Encontrar el botón de enviar mensaje en la página
-          const sendButton =
-              main.querySelector('[data-testid="send"]') ||
-              main.querySelector('[data-icon="send"]')
+      for (const line of lines) {
+        textarea.focus();
+        document.execCommand('insertText', false, line);
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        await new Promise((resolve) => setTimeout(resolve, tiempoDeEspera));
 
-          // Hacer clic en el botón de enviar mensaje
-          sendButton.click()
+        const sendButton =
+          main.querySelector('span[data-icon="wds-ic-send-filled"]')?.closest('button') ||
+          main.querySelector('button[aria-label="Send"]');
 
-          // Devolver 1 ya que se envió un solo bloque
-          return 1
-      } else {
-          // Dividir el texto del script en líneas, eliminar espacios y filtrar líneas vacías
-          const lines = scriptText
-              .split(/[\n\t]+/)
-              .map((line) => line.trim())
-              .filter((line) => line)
+        if (!sendButton) throw new Error('No se encontró el botón de enviar mensaje');
 
-          // Iterar sobre cada línea del script
-          for (const line of lines) {
-              // Foco en el cuadro de texto editable
-              textarea.focus()
-
-              // Insertar el texto de la línea actual en el cuadro de texto
-              document.execCommand('insertText', false, line)
-
-              // Despachar un evento de entrada en el cuadro de texto
-              textarea.dispatchEvent(new Event('input', { bubbles: true }))
-
-              // Esperar un tiempo especificado antes de continuar con la siguiente línea
-              await new Promise((resolve) => setTimeout(resolve, tiempoDeEspera))
-
-              // Encontrar el botón de enviar mensaje en la página
-              const sendButton =
-                  main.querySelector('[data-testid="send"]') ||
-                  main.querySelector('[data-icon="send"]')
-
-              // Hacer clic en el botón de enviar mensaje
-              sendButton.click()
-
-              // Esperar un tiempo antes de continuar con la siguiente línea
-              await new Promise((resolve) => setTimeout(resolve, tiempoDeEspera))
-          }
-
-          // Devolver la cantidad total de líneas enviadas con éxito
-          return lines.length
+        sendButton.click();
+        await new Promise((resolve) => setTimeout(resolve, tiempoDeEspera));
       }
+
+      return lines.length;
+    }
   } catch (error) {
-      // Manejar errores e imprimir mensajes de error en la consola
-      console.error(error)
-      throw error
+    console.error(error);
+    throw error;
   }
 }
 
-// Obtener el dato curioso de los sets "OLD"
+// --------------------------
+// Ejecución del mensaje
+// --------------------------
+
+// Obtener dato curioso aleatorio de sets Pokémon antiguos
 const { set: setOld, curiosidad: datoCuriosoOld } = obtenerDatoCuriosoOld();
 
-const itinerarioSemanal = `
-🤖 Ketinario Semanal 🤖 :   
-Hoy 20hs Subasta Rodri🔥
-`;
-
-// Enviar el script con el mensaje resultante
-enviarScript(`
+// Mensaje con curiosidad Pokémon, enviado línea por línea
+const mensajeCuriosidad = `
   ¡Hola, humanos! 🤖, soy el Profe Ket: 🎉🔍
   Hoy, les traigo algo de ... ${setOld} 🌟
   Dato : ${datoCuriosoOld}
   ¿Lo sabías? 🥳
-`)
-  .then(() => enviarScript(itinerarioSemanal, 0, true))
-  .then((e) => console.log(`Código finalizado, ${e} mensajes enviados`))
-  .catch(console.error);
+`;
 
-// ...existing code...
+// Enviar mensaje
+enviarScript(mensajeCuriosidad)
+  .then((e) => console.log(`✅ Código finalizado, ${e} mensajes enviados.`))
+  .catch(console.error);
