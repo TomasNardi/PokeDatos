@@ -60,4 +60,6 @@ Este script debe ejecutarse en la **consola del navegador web**, por ejemplo en 
 4. Presioná **Enter** y ¡listo! El mensaje se envía solo 🎉
 
 ---
+# 🔴 Mira el tutorial en YouTube  
+[![🔗 Click para ver el video](https://img.youtube.com/vi/LQUv4PxTMv8/0.jpg)](https://youtu.be/LQUv4PxTMv8)
 
